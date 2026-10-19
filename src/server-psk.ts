@@ -7,28 +7,21 @@ import {
   InterfaceType,
 } from "@bubblyworld/gurux-dlms-ts";
 import { allowedRouters } from "./allowed-routers.js";
+import { getPsk } from "./psk-store.js";
 
 const HOST = process.env.HOST ?? "0.0.0.0";
 const PORT = Number(process.env.PORT ?? 8443);
-
-const PSK_HEX = process.env.PSK_HEX;
 
 const CLIENT_ADDRESS = 1;
 const SERVER_ADDRESS = 22836; // Combined logical + physical address
 const AUTHENTICATION = 1;    // Low-level security (LLS)
 const DLMS_PASSWORD = process.env.DLMS_PASSWORD ?? "00000000";
 
-if (!PSK_HEX || !/^(?:[0-9a-fA-F]{2})+$/.test(PSK_HEX)) {
-  throw new Error("Set PSK_HEX to your hexadecimal TLS-PSK key.");
-}
-
 if (AUTHENTICATION === 1 && !DLMS_PASSWORD) {
   throw new Error(
     "DLMS_PASSWORD is required for low-level security (authentication 1).",
   );
 }
-
-const psk = Buffer.from(PSK_HEX, "hex");
 
 function sendAndReceive(
   socket: TLSSocket,
@@ -142,7 +135,7 @@ async function runDlmsSession(socket: TLSSocket): Promise<void> {
       options.password = DLMS_PASSWORD;
     }
 
-    const client = await DlmsClient.create({
+    client = await DlmsClient.create({
         clientAddress: 1,
         serverAddress: 22836,
         password: "00000000",
@@ -214,6 +207,12 @@ const server = tls.createServer(
     pskCallback(_socket, identity) {
       if (!allowedRouters.has(identity)) {
         console.warn("Rejected TLS-PSK identity:", identity);
+        return null;
+      }
+
+      const psk = getPsk(identity);
+      if (!psk) {
+        console.warn("No TLS-PSK configured for identity:", identity);
         return null;
       }
 
