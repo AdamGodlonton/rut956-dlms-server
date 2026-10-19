@@ -1,0 +1,25 @@
+{
+  "dependencies": {
+    "@bubblyworld/gurux-dlms-ts": "^1.5.0"
+  },
+  "name": "rut956-dlms-server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "devDependencies": {
+    "@types/node": "^26.6.5",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2"
+  },
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx src/index.ts",
+    "start": "tsx src/server.ts",
+    "start-cert": "tsx src/server-cert.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

@@ -1,0 +1,22 @@
+services:
+  psk-server:
+    build: .
+    profiles: ["psk"]
+    command: ["npm", "run", "dev"]
+    ports:
+      - "8443:8443"
+    environment:
+      HOST: 0.0.0.0
+      PORT: 8443
+      PSK_HEX: ${PSK_HEX:-}
+
+  cert-server:
+    build: .
+    profiles: ["cert"]
+    command: ["npm", "run", "start-cert"]
+    ports:
+      - "8443:8443"
+    volumes:
+      - ./certs:/app/certs:ro
+    environment:
+      DLMS_PASSWORD: ${DLMS_PASSWORD:-00000000}
